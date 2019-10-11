@@ -53,8 +53,7 @@ export default class SensorsComponent extends Component {
     }
   }
   scanAndConnect() {
-    this.manager.startDeviceScan(null,
-                                 null, (error, device) => {
+    this.manager.startDeviceScan(null, null, (error, device) => {
       this.info("Scanning...")
       console.log(device)
 
@@ -63,7 +62,7 @@ export default class SensorsComponent extends Component {
         return
       }
 
-      if (device.name === 'TI BLE Sensor Tag' || device.name === 'SensorTag') {
+      if (device.name === 'Project Zero' || device.name === 'ProjectZero') {
         this.info("Connecting to TI Sensor")
         this.manager.stopDeviceScan()
         device.connect()
@@ -104,7 +103,7 @@ export default class SensorsComponent extends Component {
   }
   render() {
     return (
-      <View>
+      <View style = {{padding: 50}} >
         <Text>{this.state.info}</Text>
         {Object.keys(this.sensors).map((key) => {
           return <Text key={key}>
@@ -114,4 +113,5 @@ export default class SensorsComponent extends Component {
       </View>
     )
   }
+  
 }
