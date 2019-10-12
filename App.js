@@ -7,50 +7,15 @@ export default class SensorsComponent extends Component {
   constructor() {
     super()
     this.manager = new BleManager()
-    this.state = {info: "", values: {}}
-    this.prefixUUID = "F0001110"
-    this.suffixUUID = "-0451-4000-B000-000000000000"
-    this.sensors = {
-      0: "Temperature",
-      1: "Accelerometer",
-      2: "Humidity",
-      3: "Magnetometer",
-      4: "Barometer",
-      5: "Gyroscope"
-    }
   }
 
-  serviceUUID(num) {
-    return this.prefixUUID + num + "0" + this.suffixUUID
-  }
-
-  notifyUUID(num) {
-    return this.prefixUUID + num + "1" + this.suffixUUID
-  }
-
-  writeUUID(num) {
-    return this.prefixUUID + num + "2" + this.suffixUUID
-  }
-
-  info(message) {
-    this.setState({info: message})
-  }
-
-  error(message) {
-    this.setState({info: "ERROR: " + message})
-  }
-
-  updateValue(key, value) {
-    this.setState({values: {...this.state.values, [key]: value}})
-  }
   componentWillMount() {
-    if (Platform.OS === 'ios') {
-      this.manager.onStateChange((state) => {
-        if (state === 'PoweredOn') this.scanAndConnect()
-      })
-    } else {
-      this.scanAndConnect()
-    }
+    const subscription = this.manager.onStateChange((state) => {
+      if (state === 'PoweredOn') {
+          this.scanAndConnect();
+          subscription.remove();
+      }
+    }, true);
   }
   scanAndConnect() {
     this.manager.startDeviceScan(null, null, (error, device) => {
@@ -63,8 +28,11 @@ export default class SensorsComponent extends Component {
       }
 
       if (device.name === 'Project Zero' || device.name === 'ProjectZero') {
-        this.info("Connecting to TI Sensor")
+        this.info("Connecting to voiceAware")
+        // Stop scanning as it's not necessary if you are scanning for one device.
         this.manager.stopDeviceScan()
+        
+        //We need to connect to it and discover all services and characteristics it contains
         device.connect()
           .then((device) => {
             this.info("Discovering services and characteristics")
